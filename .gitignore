@@ -30,6 +30,7 @@
 
 # Debug files
 *.dSYM/
-# Build files
-build-*/
-build-*/*
+#Debug folder
+build*/*.so*
+build*/*.a
+build*/*.o
