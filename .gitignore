@@ -30,6 +30,4 @@
 
 # Debug files
 *.dSYM/
-# Build files
-build-*/
-build-*/*
+
