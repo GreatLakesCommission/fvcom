@@ -121,7 +121,7 @@ int hashTabPut(struct _hash_table *table,char *key,size_t keysize,void *data,siz
     uint64_t h = hash(key);
     struct _hash_node *prev = table->bucks[h], *curr = table->bucks[h];
     int ret;
-    while(NULL != curr && (ret = strcmp(curr->key, key)) < 0)
+    while(NULL != curr && (ret = strncmp(curr->key, key, keysize)) < 0)
     {
         prev = curr;
         curr = curr->next;
