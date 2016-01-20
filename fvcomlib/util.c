@@ -357,7 +357,7 @@ char* unix_path_alloc(int *sizep)
 
 int createGrid(const char *pname,const char *playername,int epsg,GridCell *pcells,int count)
 {
-    if(!pname||!playername||!pcells)return 1;
+    if(!pname || !playername || !pcells || count < 1)return 1;
     OGRDataSourceH hDs=NULL;
     OGRSpatialReferenceH hSRS=NULL;
     OGRSFDriverH hDriver=NULL;
@@ -369,32 +369,31 @@ int createGrid(const char *pname,const char *playername,int epsg,GridCell *pcell
     OGRRegisterAll();
     if(NULL == (hSRS = OSRNewSpatialReference(NULL)))
     {
-        printError(1,"OGR can not create spatial reference");
+        printError(0,"OGR can not create spatial reference");
         return 11;
     }
     OSRImportFromEPSG(hSRS,epsg);
     if((hDriver = OGRGetDriverByName("ESRI Shapefile")) == NULL)
     {
-        printError(1,"OGR can not create driver for %s\n",pname);
+        printError(0,"OGR can not create driver for %s",pname);
         return 12;
     }
     if((hDs = OGR_Dr_CreateDataSource(hDriver,pname,NULL)) == NULL)
     {
-        printError(1,"OGR can not create data source for %s, file may already exist!\n",pname);
+        printError(0,"OGR can not create data source for %s, file may already exist!",pname);
         return 13;
     }
     if((hLayer = OGR_DS_CreateLayer(hDs,playername,hSRS,wkbPolygon,NULL)) == NULL)
     {
-        printError(1,"OGR can not create polygon layer for %s\n",pname);
+        printError(0,"OGR can not create polygon layer for %s",pname);
         return 14;
     }
     if((hFtrDef = OGR_L_GetLayerDefn(hLayer)) == NULL)
     {
-        printError(1,"OGR can not retrieve layer defination for %s\n",pname);
+        printError(0,"OGR can not retrieve layer defination for %s",pname);
         return 15;
     }
-    int i=0;
-    for(;i < count;++i)
+    for(int i = 0;i < count; ++i)
     {
         hFeature=OGR_F_Create(hFtrDef);
         hGeom=OGR_G_CreateGeometry(wkbPolygon);
@@ -423,7 +422,7 @@ int createGrid(const char *pname,const char *playername,int epsg,GridCell *pcell
             }
             else
             {
-                printError(1,"Coordinates are not filled for %s\n",pname);
+                printError(0,"Coordinates are not filled for %s",pname);
                 return 16;
             }
         }

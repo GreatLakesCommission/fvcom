@@ -36,6 +36,8 @@ int main(void)
         hashTabDestroy(ptable);
     }
     ptable = getProperties("config");
+    printError(0,"%s","new line added?");
+    printf("check\n");
     return 0;
 }
 

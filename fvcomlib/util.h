@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <ogr_api.h>
 #include <ogr_srs_api.h>
