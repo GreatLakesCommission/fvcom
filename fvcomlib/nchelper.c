@@ -52,6 +52,12 @@ inline static void print_nc_error1(int nc_errno,const char *msg,const char *msg1
 {
     return printError(nc_errno != 0 ? 1 : 0,"NETCDF Error %d: %s %s\n",nc_errno,msg,msg1);
 }
+inline size_t getDimensionSize(NC_Handler pNcInfo,int did)
+{
+    if(pNcInfo != NULL && did >= 0 && pNcInfo->dims != NULL && did < pNcInfo->dim_count)
+        return pNcInfo->dims[did].size;
+    return -1;
+}
 /*
 *Retrieve the unlimited dimension id if it exists.
 *Must call int NC_MetaData_Inq(NC_Handler handle) first
@@ -62,16 +68,10 @@ inline static void print_nc_error1(int nc_errno,const char *msg,const char *msg1
 *@return:
 *           the dimension id or -1 for nothing
 */
-int getUnlimitedDimension(NC_Handler pNcInfo)
+inline int getUnlimitedDimension(NC_Handler pNcInfo)
 {
     if(pNcInfo)
         return pNcInfo->unlmt_dim_id;
-    return -1;
-}
-size_t getDimensionSize(NC_Handler pNcInfo,int did)
-{
-    if(pNcInfo != NULL && did >= 0 && pNcInfo->dims != NULL && did < pNcInfo->dim_count)
-        return pNcInfo->dims[did].size;
     return -1;
 }
 /*

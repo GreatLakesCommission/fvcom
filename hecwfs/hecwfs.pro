@@ -4,7 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CFLAGS += -std=c99
 
-SOURCES += main.c
+SOURCES += hecwfs.c
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build-fvcomlib-Desktop-Debug/release/ -lfvcomlib
@@ -15,3 +15,5 @@ else:unix:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build-fvcomlib-Deskto
 
 INCLUDEPATH += $$PWD/../fvcomlib
 DEPENDPATH += $$PWD/../fvcomlib
+
+INCLUDEPATH += /usr/local/include
