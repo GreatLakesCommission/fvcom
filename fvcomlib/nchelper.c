@@ -37,8 +37,6 @@ struct _attr_Info
     nc_type type;
 };
 
-void printError(int errNoFlag,const char *fmt,...);
-
 /*
 *Adapter functions between nc error and UNIX errno
 *

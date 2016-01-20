@@ -23,7 +23,8 @@ typedef struct _dimInfo
 typedef struct _var_Info* NC_Variable;
 typedef struct _nc_info* NC_Handler;
 
-extern int NC_EXT_VARIABLE_SIZE[13];
+//extern int NC_EXT_VARIABLE_SIZE[13];
+extern void printError(int errNoFlag,const char *fmt,...);
 
 NC_Handler NC_Open4Read(const char *file);
 NC_Handler NC_Open4Write(const char *file);
