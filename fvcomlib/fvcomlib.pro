@@ -6,11 +6,13 @@ QMAKE_CFLAGS += -std=gnu99
 
 SOURCES += \
     util.c \
-    nchelper.c
+    nchelper.c \
+    fvcom.cpp
 
 HEADERS += \
     util.h \
-    nchelper.h
+    nchelper.h \
+    fvcom.h
 
 
 unix|win32: LIBS += -lgdal

@@ -350,15 +350,15 @@ static size_t lookupVariableTypeSize(nc_type vartype)
     }
     return 0;
 }
-char writeFloatAll(NC_Handler handler,NC_Variable pvar,double* pdata)
+bool writeFloatAll(NC_Handler handler,NC_Variable pvar,double* pdata)
 {
-    int err=nc_put_vara(handler->ncid,pvar->id,pvar->start,pvar->count,pdata);
+    int err = nc_put_vara(handler->ncid,pvar->id,pvar->start,pvar->count,pdata);
     if(NC_NOERR != err)
     {
         print_nc_error(err,"nc_put_vara failed to write the variable");
-        return -1;
+        return false;
     }
-    return 0;
+    return true;
 }
 int copyVariablesByUlimitDim(NC_Handler onc,NC_Handler nc,int start,int offset)
 {
@@ -500,7 +500,7 @@ static NC_DimInfo* NC_Inq_VarDims(NC_Handler handle,int vid,int *len)
             dimp[i].start=0;
             dimp[i].count=0;
             dimp[i].name[0]=0;
-            if(0 != NC_ReadDimInfo(&dimp[i],handle))
+            if(false == NC_ReadDimInfo(&dimp[i],handle))
             {
                 free(dimp);
                 dimp=NULL;
@@ -701,9 +701,9 @@ int NC_MetaData_Inq(NC_Handler handle)
 *          0:  no error
 *          -1: error occurs
 */
-char NC_ReadDimInfo(NC_DimInfo *pDimInfo,NC_Handler pNcInfo)
+bool NC_ReadDimInfo(NC_DimInfo *pDimInfo,NC_Handler pNcInfo)
 {
-    char result=-1;
+    bool result = false;
     if(pDimInfo && pNcInfo)
     {
         int dlen = strlen(pDimInfo->name);
@@ -722,7 +722,7 @@ char NC_ReadDimInfo(NC_DimInfo *pDimInfo,NC_Handler pNcInfo)
                 if(NC_NOERR != err)
                     print_nc_error1(err,"Can not query dimension length for",pDimInfo->name);
                 else
-                    result=0;
+                    result = true;
             }
         }
     }
@@ -848,14 +848,14 @@ void NC_DestroyVariable(NC_Variable pVar)
 *          0: no error
 *         -1: error occurs
 */
-char NC_ReadFloatArray(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
+bool NC_ReadFloatArray(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
 {
-    char result=-1;
+    bool result = false;
     if(pNcInfo && pVarInfo && pfVars)
     {
         if(!pVarInfo->start)
         {
-            pVarInfo->start=(size_t*)malloc(sizeof(size_t)*(pVarInfo->dim_count));
+            pVarInfo->start = (size_t*)malloc(sizeof(size_t)*(pVarInfo->dim_count));
             if(!pVarInfo->start)
             {
                 printError(1,"NETCDF Error: %s","Can not allocate memory in NC_ReadFloatArray, NULL returned from malloc!\n");
@@ -881,7 +881,7 @@ char NC_ReadFloatArray(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
         if(NC_NOERR != err)
             print_nc_error1(err,"Can not read values for variable(double)",pVarInfo->name);
         else
-            result=0;
+            result = true;
     }
     return result;
 }
@@ -897,7 +897,7 @@ char NC_ReadFloatArray(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
 *          0: no error
 *         -1: error occurs
 */
-char NC_ReadAllFloat(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
+bool NC_ReadAllFloat(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
 {
     if(pVarInfo && pVarInfo->pDims)
     {
@@ -905,11 +905,11 @@ char NC_ReadAllFloat(NC_Handler pNcInfo,NC_Variable pVarInfo,double *pfVars)
             pVarInfo->pDims[i].count=pVarInfo->pDims[i].size;
         return NC_ReadFloatArray(pNcInfo,pVarInfo,pfVars);
     }
-    return -1;
+    return false;
 }
-static char NC_ReadArray(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pfVars)
+bool NC_ReadArray(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pfVars)
 {
-    char result=-1;
+    bool result = false;
     if(pNcInfo && pVarInfo && pfVars)
     {
         if(!pVarInfo->start)
@@ -940,17 +940,17 @@ static char NC_ReadArray(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pfVars)
         if(NC_NOERR != err)
             print_nc_error1(err,"Can not read values for variable",pVarInfo->name);
         else
-            result=0;
+            result = true;
     }
     return result;
 }
-char NC_ReadValues(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pfVars)
+bool NC_ReadValues(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pfVars)
 {
     if(pVarInfo && pVarInfo->pDims)
         return NC_ReadArray(pNcInfo,pVarInfo,pfVars);
-    return -1;
+    return false;
 }
-char NC_ReadAllValues(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pVars)
+bool NC_ReadAllValues(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pVars)
 {
     if(pVarInfo && pVarInfo->pDims)
     {
@@ -961,14 +961,14 @@ char NC_ReadAllValues(NC_Handler pNcInfo,NC_Variable pVarInfo,void *pVars)
         }
         return NC_ReadArray(pNcInfo,pVarInfo,pVars);
     }
-    return -1;
+    return false;
 }
-char NC_AddVariableTextAttribute(NC_Handler pNcInfo,NC_Variable pVar,const char *name,const char *value)
+bool NC_AddVariableTextAttribute(NC_Handler pNcInfo,NC_Variable pVar,const char *name,const char *value)
 {
-    if(pNcInfo && pVar&&name&&value)
+    if(pNcInfo && pVar&&name && value)
     {
         int err = NC_NOERR;
-        err=nc_redef(pNcInfo->ncid);
+        err = nc_redef(pNcInfo->ncid);
         if(err != NC_NOERR)
             print_nc_error(err,"Failed to enter redef mode");
         else
@@ -978,10 +978,10 @@ char NC_AddVariableTextAttribute(NC_Handler pNcInfo,NC_Variable pVar,const char 
                 print_nc_error1(err,"Failed to add attribute",name);
             nc_enddef(pNcInfo->ncid);
             if(NC_NOERR == err)
-                return 0;
+                return true;
         }
     }
-    return -1;
+    return false;
 }
 /*
 *Remove attributes for a variable
@@ -989,12 +989,12 @@ char NC_AddVariableTextAttribute(NC_Handler pNcInfo,NC_Variable pVar,const char 
 *          0: no error
 *         -1: error occurs
 */
-char NC_RemoveVariableAttributes(NC_Handler pNcInfo,NC_Variable pVar,char **attrs,int len)
+bool NC_RemoveVariableAttributes(NC_Handler pNcInfo,NC_Variable pVar,char **attrs,int len)
 {
     if(pNcInfo && pVar && attrs && len > 0)
     {
-        int err=NC_NOERR;
-        err=nc_redef(pNcInfo->ncid);
+        int err = NC_NOERR;
+        err = nc_redef(pNcInfo->ncid);
         if(NC_NOERR != err)
             print_nc_error(err,"Failed to enter redef mode");
         else
@@ -1007,9 +1007,9 @@ char NC_RemoveVariableAttributes(NC_Handler pNcInfo,NC_Variable pVar,char **attr
             }
             nc_enddef(pNcInfo->ncid);
             if(NC_NOERR != err)
-                return 0;
+                return true;
         }
     }
-    return -1;
+    return false;
 }
 
