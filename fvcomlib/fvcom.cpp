@@ -74,6 +74,7 @@ int getGrid(const char *fname,const char*lname,int epsg,VarContext x,VarContext 
     {
         ptor->length=3;
         ptor->pcoords=NULL;
+        /*GLERL chose float (4-bytes on 64bit gnu c) for coordinates x y...*/
         ptor->coord1.x=(double)(*(((float*)(x.pdata))+*(((int*)(nv.pdata))+i)-1));
         ptor->coord1.y=(double)(*(((float*)(y.pdata))+*(((int*)(nv.pdata))+i)-1));
         ptor->coord2.x=(double)(*(((float*)(x.pdata))+*(((int*)(nv.pdata))+nele+i)-1));
