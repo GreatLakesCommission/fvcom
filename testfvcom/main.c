@@ -8,6 +8,9 @@ int main(void)
     struct _hash_table* ptable = createHashTab();
     if(ptable)
     {
+        /*
+         * Testing these cases requiring mock up hash value so all keys will hit one bucket
+        */
         hashTabPut(ptable,"abcd",4,"12345",5);
         hashTabPut(ptable,"abcd",4,"1234",5);
         hashTabPut(ptable,"abc",3,"12345",5);
@@ -65,6 +68,7 @@ int main(void)
     if(slrfvm)
     {
         VarContext lon;
+        memset(&lon,0,sizeof(VarContext));
         assert(true == readAllVariable(slrfvm,"lon",&lon));
         printf("%f\n",((float*)(lon.pdata))[0]);
 
@@ -77,8 +81,10 @@ int main(void)
         assert(0 == lonfoobar.type);
 
         VarContext lat;
+        memset(&lat,0,sizeof(VarContext));
         assert(true == readAllVariable(slrfvm,"lat",&lat));
         VarContext nv;
+        memset(&nv,0,sizeof(VarContext));
         assert(true == readAllVariable(slrfvm,"nv",&nv));
         assert(0 == getGrid("slrfvm-grid.shp","grid",4269, lon, lat, nv, getDimensionLength(slrfvm,nv,"nele")));
 
