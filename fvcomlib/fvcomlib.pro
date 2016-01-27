@@ -7,7 +7,7 @@ QMAKE_CFLAGS += -std=gnu99
 SOURCES += \
     util.c \
     nchelper.c \
-    fvcom.cpp
+    fvcom.c
 
 HEADERS += \
     util.h \

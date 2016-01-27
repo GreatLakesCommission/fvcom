@@ -70,7 +70,7 @@ typedef void* yyscan_t;
 datasetDecl* fvmDDSDatasetCreate(fvcomDdsContext *fdc, dataVarDecl*, const char* dname);
 arrayDim* fvmDDSArrayDecl(fvcomDdsContext *fdc, char *dimName,uint32_t len);
 arrayDim* fvmDDSArrayDecls(fvcomDdsContext *fdc, arrayDim* d1, arrayDim* d2);
-char* fvmDDSLiteraldecl(fvcomDdsContext *fdc, char *pstr);
+char* fvmDDSLiteralDecl(fvcomDdsContext *fdc, char *pstr);
 dataVarDecl* fvmDDSVarDecls(fvcomDdsContext *fdc, uint8_t type, const char* name, arrayDim* dims);
 dataVarDecl* fvmDDSVarAppend(fvcomDdsContext *fdc, dataVarDecl* d1, dataVarDecl* d2);
 void fvmerror(yyscan_t yyscanner, fvcomDdsContext* fdc, char *s,...);

@@ -63,7 +63,10 @@ datasetbody:
     ;
 
 declarations:
-    {$$=NULL;}
+    declaration
+    {
+        $$ = fvmDDSVarAppend(fdc, NULL, $1);
+    }
     | declarations declaration
     {
         $$ = fvmDDSVarAppend(fdc, $1, $2);
@@ -93,38 +96,38 @@ base_type:
     ;
 
 array_decls:
-    array_decls array_decl
+    array_decl
+    {
+        $$=fvmDDSArrayDecls(fdc,NULL,$1);
+    }
+    | array_decls array_decl
     {
         $$=fvmDDSArrayDecls(fdc,$1,$2);
     }
     ;
 
 array_decl:
-      '[' DDS_NUMBER ']'
-      {
-          $$=fvmDDSArrayDecl(fdc,NULL,$2);
-      }
+    '[' DDS_NUMBER ']'
+    {
+        $$=fvmDDSArrayDecl(fdc,NULL,$2);
+    }
     | '[' name '=' DDS_NUMBER ']'
     {
         $$=fvmDDSArrayDecl(fdc,$2,$4);
     }
-    | error
-      {
-          fvmerror(fdc, "Illegal dimension declaration");
-          YYABORT;
-      }
     ;
 
 datasetname:
-    var_name {$$=$1;}
+    /* empty */ {$$=""}
+    | var_name
     ;
 
 var_name:
-    name {$$=$1;}
+    name
     ;
 
 name:
-    DDS_LITERAL {$$=fvmDDSLiteraldecl(fdc,$1);}
+    DDS_LITERAL {$$=fvmDDSLiteralDecl(fdc,$1);}
     | DDS_ERROR {$$="Error";}
     ;
 %%
@@ -140,7 +143,7 @@ datasetDecl* fvmDDSDatasetCreate(fvcomDdsContext *fdc, dataVarDecl* pvars, const
     }
     return pds;
 }
-char* fvmDDSLiteraldecl(fvcomDdsContext *fdc, char *pstr)
+char* fvmDDSLiteralDecl(fvcomDdsContext *fdc, char *pstr)
 {
     fvcomStrList *strlst = (fvcomStrList*)fvm_malloc(sizeof(fvcomStrList));
     strlst->next = NULL;

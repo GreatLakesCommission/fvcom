@@ -14,6 +14,8 @@
 "Float64" {return DDS_FLOAT64;}
 "String" {return DDS_STRING;}
 "Dataset" {return DDS_DATASET;}
+"[" {return '[';};
+"]" {return ']';}
 [1-9][0-9]* {
                  yylval->intVal=atoi(yyget_text(yyscanner));
                  return DDS_NUMBER;
