@@ -10,6 +10,12 @@
 %{
 #define YYERROR_VERBOSE
 #include "fvmddscontext.h"
+struct _datasetDef
+{
+    datasetDecl* declInternal;
+    HASHTAB table;
+    int numOfVars;
+};
 %}
 
 %union{
@@ -51,7 +57,7 @@
 start:
     DDS_DATASET datasetbody
     {
-        $$=$2;
+        fdc->dataSet=$2;
     }
     ;
 
@@ -76,11 +82,11 @@ declarations:
 declaration:
     base_type var_name array_decls ';'
     {
-        $$ = fvmDDSVarDecls(fdc, $1, $2, $3);
+        $$ = fvmDDSVarDecl(fdc, $1, $2, $3);
     }
     | base_type var_name ';'
     {
-        $$ = fvmDDSVarDecls(fdc, $1, $2, NULL);
+        $$ = fvmDDSVarDecl(fdc, $1, $2, NULL);
     }
     ;
 
@@ -118,8 +124,7 @@ array_decl:
     ;
 
 datasetname:
-    /* empty */ {$$=""}
-    | var_name
+    var_name
     ;
 
 var_name:
@@ -131,35 +136,37 @@ name:
     | DDS_ERROR {$$="Error";}
     ;
 %%
-datasetDecl* fvmDDSDatasetCreate(fvcomDdsContext *fdc, dataVarDecl* pvars, const char* dname)
+
+datasetDecl* fvmDDSDatasetCreate(fvcomDdsContext *fdc, dataVarDecl* pvars, char* dname)
 {
     datasetDecl *pds= (datasetDecl*)fvm_malloc(sizeof(datasetDecl));
-    pds->numOfVars = 0;
     pds->varDecl = pvars;
-    while(NULL != pvars)
-    {
-        pds->numOfVars++;
-        pvars = pvars->next;
-    }
+    pds->name = dname;
+    if(NULL != dname)
+        FVM_POP_LIST(fdc,strList)
+    fdc->varList = NULL;
     return pds;
 }
+
 char* fvmDDSLiteralDecl(fvcomDdsContext *fdc, char *pstr)
 {
     fvcomStrList *strlst = (fvcomStrList*)fvm_malloc(sizeof(fvcomStrList));
     strlst->next = NULL;
     strlst->pstr = pstr;
-    FVM_PUSH_LIST(strlst, FVM_MEMBER_ACCESS(fdc, strList))
+    FVM_PUSH_LIST(strlst, fdc, strList)
     return pstr;
 }
 
-dataVarDecl* fvmDDSVarDecls(fvcomDdsContext *fdc, uint8_t type, const char* name, arrayDim* dims)
+dataVarDecl* fvmDDSVarDecl(fvcomDdsContext *fdc, uint8_t type, char* name, arrayDim* dims)
 {
     dataVarDecl *pvar=(dataVarDecl*)fvm_malloc(sizeof(dataVarDecl));
     pvar->next = NULL;
-    FVM_PUSH_LIST(pvar, FVM_MEMBER_ACCESS(fdc, varList))
     pvar->type = type;
     pvar->name = name;
+    FVM_POP_LIST(fdc,strList)
     pvar->dims = dims;
+    if(NULL != dims)
+        fdc->dimList = NULL;
     return pvar;
 }
 
@@ -167,45 +174,142 @@ dataVarDecl* fvmDDSVarAppend(fvcomDdsContext *fdc, dataVarDecl* d1, dataVarDecl*
 {
     if(NULL != d1)
     {
-        d1->next = d2;
+        dataVarDecl *itor = d1;
+        while(NULL != itor->next)
+            itor = itor->next;
+        itor->next = d2;
         return d1;
     }
     else
+    {
+        fdc->varList = d2;
         return d2;
+    }
 }
 
 arrayDim* fvmDDSArrayDecls(fvcomDdsContext *fdc, arrayDim* d1, arrayDim* d2)
 {
     if(NULL != d1)
     {
-        d1->next = d2;
+        arrayDim *itor = d1;
+        while(NULL != itor->next)
+            itor = itor->next;
+        itor->next = d2;
         return d1;
     }
     else
+    {
+        fdc->dimList = d2;
         return d2;
+    }
 }
 
 arrayDim* fvmDDSArrayDecl(fvcomDdsContext *fdc, char *dimName,uint32_t len)
 {
     arrayDim *pdim=(arrayDim*)fvm_malloc(sizeof(arrayDim));
     pdim->next = NULL;
-    FVM_PUSH_LIST(pdim, FVM_MEMBER_ACCESS(fdc, dimList))
     pdim->len = len;
     pdim->name = dimName;
+    if(NULL != dimName)
+        FVM_POP_LIST(fdc,strList)
     pdim->next = NULL;
     return pdim;
 }
 
-void fvmDDSParse(const char *ddsFilePath)
+static void freeDimensions(arrayDim *pdim)
+{
+    if(pdim)
+    {
+        arrayDim* dtmp = NULL;
+        while(NULL != pdim)
+        {
+            dtmp = pdim->next;
+            free(pdim->name);
+            free(pdim);
+            pdim = dtmp;
+        }
+    }
+}
+
+void freeVariables(dataVarDecl *pvar)
+{
+    if(pvar)
+    {
+        dataVarDecl* vtmp = NULL;
+        while(NULL != pvar)
+        {
+            vtmp = pvar->next;
+            free(pvar->name);
+            freeDimensions(pvar->dims);
+            free(pvar);
+            pvar = vtmp;
+        }
+    }
+}
+
+void freeDatasetDef(datasetDef *def)
+{
+    if(NULL != def)
+    {
+        hashTabDestroy(def->table);
+        if(NULL != def->declInternal)
+        {
+            if(NULL != def->declInternal->name)
+                free(def->declInternal->name);
+            freeVariables(def->declInternal->varDecl);
+        }
+    }
+}
+
+dataVarDecl* fvmDDSVarDef(datasetDef* def, const char *name, size_t size)
+{
+    dataVarDecl* decl = NULL;
+    if(NULL != def)
+    {
+        size_t datasize = 0;
+        decl = (dataVarDecl*)hashTabLookup(def->table, name, size, &datasize, KEEP);
+    }
+    return decl;
+}
+
+datasetDef* fvmDDSParse(const char *ddsFilePath)
 {
     yyscan_t fvmscanner;
     fvcomDdsContext ctx;
+    memset(&ctx, 0, sizeof(fvcomDdsContext));
+    datasetDef *def = NULL;
     FILE *f=fopen(ddsFilePath,"r");
-    fvmlex_init(&fvmscanner);
-    fvmset_in(f,fvmscanner);
-    fvmparse(fvmscanner, &ctx);
-    mklex_destroy(fvmscanner);
-    fclose(f);
+    if(NULL != f)
+    {
+        fvmlex_init(&fvmscanner);
+        fvmset_in(f,fvmscanner);
+        fvmparse(fvmscanner, &ctx);
+        fvmlex_destroy(fvmscanner);
+        fclose(f);
+        if(NULL != ctx.dataSet)
+        {
+            def = (datasetDef*)fvm_malloc(sizeof(datasetDef));
+            def->declInternal = ctx.dataSet;
+            def->table = createHashTab();
+            dataVarDecl* pvar = ctx.dataSet->varDecl;
+            size_t dlen = 0;
+            while(NULL != pvar)
+            {
+                void* data = hashTabLookup(def->table, pvar->name, strlen(pvar->name), &dlen, KEEP);
+                if(NULL != data)
+                {
+                    free(data);
+                    freeDatasetDef(def);
+                    printError(0,"DDS Parsing found variables with identical names: %s", pvar->name);
+                    return NULL;
+                }
+                hashTabPut(def->table, pvar->name, strlen(pvar->name), pvar, sizeof(dataVarDecl));
+                def->numOfVars++;
+                pvar = pvar->next;
+            }
+        }
+    }
+    return def;
 }
 
 static void freeContextList(fvcomDdsContext *pctx)
@@ -221,27 +325,15 @@ static void freeContextList(fvcomDdsContext *pctx)
             free(sitor);
             sitor = stmp;
         }
-        arrayDim* ditor = pctx->dimList;
-        arrayDim* dtmp = NULL;
-        while(NULL != ditor)
-        {
-            dtmp = ditor->next;
-            free(ditor);
-            ditor = dtmp;
-        }
-        dataVarDecl* vitor = pctx->varList;
-        dataVarDecl* vtmp = NULL;
-        while(NULL != vitor)
-        {
-            vtmp = vitor->next;
-            free(vitor);
-            vitor = vtmp;
-        }
+        if(NULL != pctx->dimList)
+            freeDimensions(pctx->dimList);
+        if(NULL != pctx->varList)
+            freeVariables(pctx->varList);
     }
 }
 
 void fvmerror(yyscan_t yyscanner, fvcomDdsContext* fdc, char *s,...)
 {
     freeContextList(fdc);
-    printError(0,"DDS Parsing Error:%s\n",s);
+    printError(0,"DDS Parsing Error:%s with text: %s at line: %d",s, fvmget_text(yyscanner), fvmget_lineno(yyscanner));
 }

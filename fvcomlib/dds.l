@@ -14,18 +14,23 @@
 "Float64" {return DDS_FLOAT64;}
 "String" {return DDS_STRING;}
 "Dataset" {return DDS_DATASET;}
-"[" {return '[';};
-"]" {return ']';}
 [1-9][0-9]* {
-                 yylval->intVal=atoi(yyget_text(yyscanner));
+                 yylval->intVal=atoi(fvmget_text(yyscanner));
                  return DDS_NUMBER;
             }
-[a-zA-Z][a-zA-Z0-9]* {
-                     yylval->strPtr = strdup(yyget_text(yyscanner));
+[_a-zA-Z][_a-zA-Z0-9\-\/]*\.?[a-zA-Z]* {
+                     yylval->strPtr = strdup(fvmget_text(yyscanner));
                      return DDS_LITERAL;
                  }
-[ \t] {}
-. {
-      return DDS_ERROR;
-  }
+"[" {return '[';};
+"]" {return ']';}
+"{" {return '{';};
+"}" {return '}';}
+"=" {return '=';}
+";" {return ';';}
+
+#[^\n]*     {}
+[ \t\r\n]   {}
+
+. {return DDS_ERROR;}
 %%

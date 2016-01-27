@@ -355,6 +355,21 @@ char* unix_path_alloc(int *sizep)
     return ptr;
 }
 
+void* fvm_malloc(size_t size)
+{
+    void *ptr=NULL;
+    if(size > 0)
+    {
+        ptr = malloc(size);
+        if(NULL == ptr)
+        {
+            printError(0, "Failed to allocate memory with size of: u% bytes", size);
+            abort();
+        }
+    }
+    return ptr;
+}
+
 int createGrid(const char *pname,const char *playername,int epsg,GridCell *pcells,int count)
 {
     if(!pname || !playername || !pcells || count < 1)return 1;

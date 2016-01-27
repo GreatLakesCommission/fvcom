@@ -79,20 +79,7 @@ void hashTabDestroy(struct _hash_table *table);
 size_t gethashTabSize(struct _hash_table *table);
 struct _hash_table* getProperties(const char *path);
 int createGrid(const char *pname,const char *playername,int epsg,GridCell *cells,int count);
-inline void* fvm_malloc(size_t size)
-{
-    void *ptr=NULL;
-    if(size > 0)
-    {
-        ptr = malloc(size);
-        if(NULL == ptr)
-        {
-            printError(0, "Failed to allocate memory with size of: u% bytes", size);
-            abort();
-        }
-    }
-    return ptr;
-}
+void* fvm_malloc(size_t size);
 
 #ifdef __cplusplus
 }
