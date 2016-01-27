@@ -1550,7 +1550,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 136 "../fvcomlib/dds.y"
-    {(yyval.strPtr)="Error";;}
+    {fvmerror(yyscanner, fdc, "Unknown characters in the dds file");;}
     break;
 
 
