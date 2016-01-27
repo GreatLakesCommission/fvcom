@@ -114,6 +114,7 @@ void TestDDS()
 
     assert(NULL == fvmDDSParse("data1.dds"));
     assert(NULL == fvmDDSParse("data2.dds"));
+    assert(NULL == fvmDDSParse("data3.dds"));
 }
 
 int main(void)

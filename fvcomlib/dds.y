@@ -133,7 +133,6 @@ var_name:
 
 name:
     DDS_LITERAL {$$=fvmDDSLiteralDecl(fdc,$1);}
-    | DDS_ERROR {fvmerror(yyscanner, fdc, "Unknown characters in the dds file");}
     ;
 %%
 
