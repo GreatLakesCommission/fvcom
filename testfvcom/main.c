@@ -111,6 +111,9 @@ void TestDDS()
     }
     free(var);
     freeDatasetDef(def);
+
+    assert(NULL == fvmDDSParse("data1.dds"));
+    assert(NULL == fvmDDSParse("data2.dds"));
 }
 
 int main(void)
