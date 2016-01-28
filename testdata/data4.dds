@@ -1,0 +1,29 @@
+Dataset {
+    Int32 nv[three = 3][nele = 34896];
+    Int32 Itime[time = 3];
+    Int32 Itime2[time = 3];
+    String Times[time = 3];
+    Float32 h[node = 19630]
+    Int32 iint[time = 3];
+    Float32 lat[node = 19630];
+    Float32 latc[nele = 34896];
+    Float32 lon[node = 19630];
+    Float32 lonc[nele = 34896];
+    Int32 nprocs;
+    Int32 partition[nele = 34896];
+    Float32 siglay[siglay = 6][node = 19630];
+    Float32 siglev[siglev = 7][node = 19630];
+    Float32 time[time = 3];
+    Float32 u[time = 3][siglay = 6][nele = 34896];
+    Float32 v[time = 3][siglay = 6][nele = 34896];
+    Int32 wet_cells[time = 3][nele = 34896];
+    Int32 wet_cells_prev_ext[time = 3][nele = 34896];
+    Int32 wet_cells_prev_int[time = 3][nele = 34896];
+    Int32 wet_nodes[time = 3][node = 19630];
+    Int32 wet_nodes_prev_int[time = 3][node = 19630];
+    Float32 x[node = 19630];
+    Float32 xc[nele = 34896];
+    Float32 y[node = 19630];
+    Float32 yc[nele = 34896];
+    Float32 zeta[time = 3][node = 19630];
+} SLRFVM-Nowcast-Files/201532103.nc;

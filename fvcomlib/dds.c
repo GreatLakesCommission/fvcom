@@ -1888,6 +1888,40 @@ void freeDatasetDef(datasetDef *def)
     }
 }
 
+static arrayDim* copyDimDeep(arrayDim *pdim)
+{
+    arrayDim *p = NULL;
+    if(pdim)
+    {
+        p = (arrayDim*)fvm_malloc(sizeof(arrayDim));
+        p->len = pdim->len;
+        p->name = strdup(pdim->name);
+        p->next = NULL;
+        pdim = pdim->next;
+        arrayDim *tp = p;
+        while(NULL != pdim)
+        {
+            tp->next = (arrayDim*)fvm_malloc(sizeof(arrayDim));
+            tp->next->len = pdim->len;
+            tp->next->name = strdup(pdim->name);
+            tp->next->next = NULL;
+            pdim = pdim->next;
+            tp = tp->next;
+        }
+    }
+    return p;
+}
+
+static void copyVariableDeep(dataVarDecl *pvar)
+{
+    if(pvar)
+    {
+        pvar->name = strdup(pvar->name);
+        pvar->next = NULL;
+        pvar->dims = copyDimDeep(pvar->dims);
+    }
+}
+
 dataVarDecl* fvmDDSVarDef(datasetDef* def, const char *name, size_t size)
 {
     dataVarDecl* decl = NULL;
@@ -1895,6 +1929,7 @@ dataVarDecl* fvmDDSVarDef(datasetDef* def, const char *name, size_t size)
     {
         size_t datasize = 0;
         decl = (dataVarDecl*)hashTabLookup(def->table, name, size, &datasize, KEEP);
+        copyVariableDeep(decl);
     }
     return decl;
 }

@@ -100,7 +100,7 @@ void TestHash()
 
 void TestDDS()
 {
-    DatasetDef def = fvmDDSParse("data.dds");
+    DatasetDef def = fvmDDSParse("../testdata/data.dds");
     dataVarDecl* var= fvmDDSVarDef(def, "u", 1);
     printf("variable 'u' type: %d, name: %s\n",var->type, var->name);
     arrayDim *dims = var->dims;
@@ -109,12 +109,57 @@ void TestDDS()
         printf("        with dimension '%s' and length: %d\n",dims->name, dims->len);
         dims = dims->next;
     }
-    free(var);
+    freeVariables(var);
     freeDatasetDef(def);
 
-    assert(NULL == fvmDDSParse("data1.dds"));
-    assert(NULL == fvmDDSParse("data2.dds"));
-    assert(NULL == fvmDDSParse("data3.dds"));
+    assert(NULL == fvmDDSParse("../testdata/data1.dds"));
+    assert(NULL == fvmDDSParse("../testdata/data2.dds"));
+    assert(NULL == fvmDDSParse("../testdata/data3.dds"));
+    assert(NULL == fvmDDSParse("../testdata/data4.dds"));
+
+    def = fvmDDSParse("../testdata/data5.dds");
+    assert(def != NULL);
+    freeDatasetDef(def);
+
+    def = fvmDDSParse("../testdata/glcfs-nowcast.dds");
+    assert(def != NULL);
+    var= fvmDDSVarDef(def, "u", 1);
+    printf("variable 'u' type: %d, name: %s\n",var->type, var->name);
+    dims = var->dims;
+    while(dims)
+    {
+        printf("        with dimension '%s' and length: %d\n",dims->name, dims->len);
+        dims = dims->next;
+    }
+    freeVariables(var);
+    var= fvmDDSVarDef(def, "u", 1);
+    printf("variable 'u' type: %d, name: %s\n",var->type, var->name);
+    dims = var->dims;
+    while(dims)
+    {
+        printf("        with dimension '%s' and length: %d\n",dims->name, dims->len);
+        dims = dims->next;
+    }
+    freeVariables(var);
+    var= fvmDDSVarDef(def, "lat", 1);
+    printf("variable 'lat' type: %d, name: %s\n",var->type, var->name);
+    dims = var->dims;
+    while(dims)
+    {
+        printf("        with dimension '%s' and length: %d\n",dims->name, dims->len);
+        dims = dims->next;
+    }
+    freeVariables(var);
+    var= fvmDDSVarDef(def, "u", 1);
+    printf("variable 'u' type: %d, name: %s\n",var->type, var->name);
+    dims = var->dims;
+    while(dims)
+    {
+        printf("        with dimension '%s' and length: %d\n",dims->name, dims->len);
+        dims = dims->next;
+    }
+    freeVariables(var);
+    freeDatasetDef(def);
 }
 
 int main(void)

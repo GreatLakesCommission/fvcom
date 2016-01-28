@@ -18,7 +18,7 @@
                  yylval->intVal=atoi(fvmget_text(yyscanner));
                  return DDS_NUMBER;
             }
-[_a-zA-Z][_a-zA-Z0-9\-\/]*\.?[a-zA-Z]* {
+[_a-zA-Z0-9][_a-zA-Z0-9\-\/]*\.?[a-zA-Z]* {
                      yylval->strPtr = strdup(fvmget_text(yyscanner));
                      return DDS_LITERAL;
                  }

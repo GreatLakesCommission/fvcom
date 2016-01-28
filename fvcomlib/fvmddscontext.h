@@ -82,6 +82,7 @@ void fvmerror(yyscan_t yyscanner, fvcomDdsContext* fdc, char *s,...);
 datasetDef* fvmDDSParse(const char *ddsFilePath);
 void freeDatasetDef(datasetDef *def);
 dataVarDecl* fvmDDSVarDef(datasetDef* def, const char *name, size_t size);
+void freeVariables(dataVarDecl *pvar);
 
 #ifdef __cplusplus
 }

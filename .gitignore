@@ -36,3 +36,4 @@ build*/
 build*/*.so*
 build*/*.a
 build*/*.o
+googletest/*
